@@ -1,0 +1,102 @@
+openapi: 3.0.0
+info:
+  title: Mock E-Commerce API
+  description: Akıllı testler için kurgulanmış bağımlı ve stateful mock API. (Fuzzing testi içindir)
+  version: 1.0.0
+servers:
+  - url: "http://host.docker.internal:8080/api/v1"
+    description: Mock Local Server
+
+paths:
+  /users: # Kullanıcı oluşturma
+    post:
+      summary: Yeni Bir Kullanıcı Oluşturur
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email]
+              properties:
+                username:
+                  type: string
+                  minLength: 1
+                  example: "test_user_123"
+                email:
+                  type: string
+                  format: email
+                  example: "test@domain.com"
+      responses:
+        '201':
+          description: Kullanıcı Başarıyla Oluştu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                    example: 101
+        '400':
+          description: Geçersiz Girdi
+
+  /users/{userId}/orders: # Kullanıcı olmadan sipariş verilemez
+    post:
+      summary: Belirli Bir Kullanıcıya Sipariş Ekler
+      operationId: createOrder
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Sipariş oluşturulacak kullanıcının ID'si
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_id, quantity]
+              properties:
+                product_id:
+                  type: integer
+                  example: 543
+                quantity:
+                  type: integer
+                  minimum: 1
+                  example: 2
+      responses:
+        '201':
+          description: Sipariş Başarıyla Oluştu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+                    example: 999
+        '400':
+          description: Eksik Tutar veya Sipariş Validasyonu
+        '404':
+          description: Kullanıcı Bulunamadı
+
+
+  /users/{userId}:
+    delete:
+      summary: Kullanıcıyı Siler
+      operationId: deleteUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Kullanıcı Silindi
+        '404':
+          description: Kullanıcı Bulunamadı

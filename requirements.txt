@@ -1,0 +1,2 @@
+schemathesis>=3.30.0
+flask>=3.0.0
